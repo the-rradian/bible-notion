@@ -17,16 +17,17 @@ const apiKey = process.env.BIBLE_API
 const headers = new Headers()
 headers.append("api-key", apiKey)
 
-app.get('/verse', async (req,res)=>{
-    if (req.query){
+app.get('/verse', async (req,res, next)=>{
+    if (req.query.book && req.query.chapter && req.query.verse){
         try {
             const verseContent = await retrieveVerse(req.query.book, req.query.chapter, req.query.verse)
             res.send(verseContent)
         } catch (error) {
-            console.log(error)
+            next(error)
+            res.status(404).send({"status": 404, "message":"Verse not found"})
         }
     } else 
-    res.status(400).send('Bad request')//idk if this is correct but adding it just for now
+    res.status(400).send({"status": 400, "message":"Request parameters missing"})
 })
 
 app.listen(3000, () => console.log("App listening on port 3000"))
@@ -40,13 +41,31 @@ async function retrieveVerse(book,chapter,verse){
         mode: "cors",
         cache: "default"
     })
+    const response = await fetch(request)
+
+    if (response.ok) {
+            return response.json(); // Get JSON value from the response body
+    } else { 
+        const errorMessage = "Something happened" 
+        throw new Error(errorMessage)
+    }
+}
+
+function getBookID(bookName){
     try {
-        const response = await fetch(request)
-        const result = response.json()
-        return result
+        // Parse the JSON string into a JavaScript object
+        const jsonArray = JSON.parse(booksString)
+        const foundObject = jsonArray.find(obj => obj.name.toUpperCase() === bookName.toUpperCase())
+    
+        if (foundObject) {
+            return foundObject.id
+        } else {
+            console.error("Book not found")
+            throw new Error("Book not found")
+        }
     } catch (error) {
-        console.error("Error:", error)
-        const errorMessage = "Error: " + error 
-        return errorMessage
+
+        console.error('Error parsing JSON:', error)
+        return null
     }
 }

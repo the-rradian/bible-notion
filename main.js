@@ -1,24 +1,68 @@
 import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+const searchBox = document.getElementById('search')
+const searchBtn = document.getElementById('search-btn')
+const clearBtn = document.getElementById('clear-btn')
 
-setupCounter(document.querySelector('#counter'))
+const verseText = document.getElementById('verse-content')
+const verseReference = document.getElementById('reference')
+
+clearBtn.addEventListener('click', () => {
+  searchBox.value = ""
+})
+
+searchBtn.addEventListener('click', async () => {
+  const reference = searchBox.value.trim()
+
+    try {
+      const parameters = parseReference(reference)
+    } catch (error) {
+      verseText.innerHTML = error
+    }
+
+  const response =  await callAPI(parameters)
+  const result = response.json()
+
+  if (result["data"]) {
+    verseText.innerHTML = result["data"]["content"][0]["items"][1]["text"]
+    verseReference.innerHTML = result["data"]["reference"]
+  } else
+  verseText.innerHTML = "Verse not found or invalid format"
+  verseReference.innerHTML = ""
+})
+
+async function callAPI(params){
+  try {
+    const response = await fetch(`http://localhost:3000/verse?book=${params.book}&chapter=${params.chapter}&verse=${params.verse}`)
+    return response
+  } catch (error) {
+    console.error("Error: " + error)
+    return null
+  }
+}
+
+function parseReference(verseString){
+    // Regular expression to match the pattern "Book Chapter:Verse"
+    const regex = /^([\w\s]+)(\d+)\s*:\s*(\d+)$/;
+  
+    // Use the regex to extract book, chapter, and verse
+    const match = verseString.match(regex);
+  
+    // Check if the string matches the expected pattern
+    if (match) {
+      const book = match[1].trim();
+      const chapter = parseInt(match[2], 10);
+      const verse = parseInt(match[3], 10);
+  
+      // Create and return the verse object
+      return {
+        book: book,
+        chapter: chapter,
+        verse: verse
+      };
+    } else {
+      // Return null or handle invalid input as needed
+      throw new Error("Invalid verse format")
+    }
+  }
+
