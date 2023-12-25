@@ -25,29 +25,28 @@ searchBtn.addEventListener('click', async () => {
       const result = await response.json()
 
       if (result["data"]) {
-        verseText.innerHTML = result["data"]["content"][0]["items"][1]["text"]
+        verseText.innerHTML = result["data"]["content"]
       } else
       verseText.innerHTML = "Verse not found"
 
     } catch (error) {
       console.error("Error: " + error)
-      verseText.innerHTML = error
+      verseText.innerHTML = "Error: " + error
     }
 
 })
 
 function parseReference(verseString){
     // Regular expression to match the pattern "Book Chapter:Verse"
-    const regex = /^([\w\s]+)(\d+)\s*:\s*(\d+)$/;
+    const regex = /^([\w\s]+[^\d]+)(\d+)\s*:\s*(\d+)$/;
     const match = verseString.match(regex);
   
-    // Check if the string matches the expected pattern
+    // Check if the string matches the expected pattern and stores each value accordingly
     if (match) {
       const book = match[1].trim();
       const chapter = parseInt(match[2], 10);
       const verse = parseInt(match[3], 10);
   
-      // Create and return the verse object
       return {
         book: book,
         chapter: chapter,
