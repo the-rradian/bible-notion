@@ -1,6 +1,8 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
 
+import path from 'path'
+
 import express from 'express'
 import cors from 'cors'
 
@@ -20,7 +22,7 @@ versions.set("KJV", "de4e12af7f28f599-02")
 
 const books = await getBooks()
 
-app.get('/verse', async (req,res, next) => {
+app.get('/verse', async (req,res,next) => {
     
     let version = ""
     if(req.query.version){ 
@@ -40,7 +42,9 @@ app.get('/verse', async (req,res, next) => {
     res.status(400).send({"status": 400, "message":"Request parameters missing"})
 })
 
-app.listen(3000, () => console.log("App listening on port 3000"))
+app.set('trust proxy', true)
+const PORT = process.env.PORT || 8080
+app.listen(PORT, () => console.log(`App listening on port ${PORT}...`))
 
 async function retrieveVerse(version,book,chapter,verse){
     

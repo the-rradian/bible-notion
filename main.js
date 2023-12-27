@@ -21,7 +21,7 @@ searchBtn.addEventListener('click', async () => {
 
     try {
       const params = parseReference(reference)
-      const response = await fetch(`http://localhost:3000/verse?book=${params.book}&chapter=${params.chapter}&verse=${params.verse}`)
+      const response = await fetch(`http://localhost:8080/verse?book=${params.book}&chapter=${params.chapter}&verse=${params.verse}`)
       const result = await response.json()
 
       if (result["data"]) {
