@@ -1,8 +1,6 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-import path from 'path'
-
 import express from 'express'
 import cors from 'cors'
 
@@ -21,6 +19,10 @@ versions.set("WEB", "9879dbb7cfe39e4d-03")
 versions.set("KJV", "de4e12af7f28f599-02")
 
 const books = await getBooks()
+
+app.get('/', (req,res) => { 
+    res.send("Server is online")
+})
 
 app.get('/verse', async (req,res,next) => {
     
@@ -42,14 +44,13 @@ app.get('/verse', async (req,res,next) => {
     res.status(400).send({"status": 400, "message":"Request parameters missing"})
 })
 
-app.set('trust proxy', true)
 const PORT = process.env.PORT || 8080
 app.listen(PORT, () => console.log(`App listening on port ${PORT}...`))
 
 async function retrieveVerse(version,book,chapter,verse){
     
     const bookID = getBookID(book)
-    const request = new Request(`${apiURL}/${version}/verses/${bookID}.${chapter}.${verse}?content-type=text&include-verse-numbers=false`, {
+    const request = new Request(`${apiURL}/${version}/verses/${bookID}.${chapter}.${verse}?content-type=text&include-titles=false&include-verse-numbers=false`, {
         method: "GET",
         headers: headers,
         mode: "cors",
@@ -67,7 +68,6 @@ async function retrieveVerse(version,book,chapter,verse){
 function getBookID(bookName){
     try {
 
-       // const bstring = JSON.stringify(booksString)
         const jsonArray = books.data
         const foundObject = jsonArray.find(obj => obj.name.toUpperCase() === bookName.toUpperCase())
     
@@ -98,7 +98,7 @@ async function getBooks(){
     const response = await fetch(request)
 
     if (response.ok) {
-            return response.json(); // Get JSON value from the response body
+            return response.json();
     } else { 
         throw new Error("Could not retrieve books")
     }
