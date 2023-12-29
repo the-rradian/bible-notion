@@ -94,15 +94,19 @@ button{
     background-color: #ffffff;
   }
   button {
-    background-color: #f9f9f9;
+    background-color: rgba(169, 169, 169, 0.324);
     color: #242424;
-    border-color: #575757;
+    border: none;
   }
   #verse-content{
     color: #242424;
   }
   #search-box{
     background-color: rgba(255, 255, 255, 0.87);
+    color: #242424;
+  }
+  #version-select{
+    background-color: rgba(169, 169, 169, 0.324);
     color: #242424;
   }
 }
